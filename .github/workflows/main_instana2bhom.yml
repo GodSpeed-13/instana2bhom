@@ -2,7 +2,7 @@ name: Build and deploy Python project to Azure Function App - instana2bhom
 
 on:
   push:
-    branches: [ main ]
+    branches: main
   workflow_dispatch:
 
 env:
@@ -13,7 +13,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
 
     steps:
       - name: Checkout repository
@@ -35,15 +35,15 @@ jobs:
           echo "Listing .python_packages/lib/site-packages (top 50):"
           ls -la .python_packages/lib/site-packages | head -n 50
           echo "Check requests import:"
-          python - <<'PY'
-import sys
-sys.path.insert(0, '.python_packages/lib/site-packages')
-try:
-    import requests
-    print('requests OK', requests.__version__)
-except Exception as e:
-    print('requests import failed:', e)
-PY
+          python - <<PY
+          import sys
+          sys.path.insert(0, '.python_packages/lib/site-packages')
+          try:
+              import requests
+              print('requests OK', requests.__version__)
+          except Exception as e:
+              print('requests import failed:', e)
+          PY
 
       - name: Zip artifact for deployment
         run: |
@@ -88,3 +88,4 @@ PY
           app-name: 'instana2bhom'
           slot-name: 'Production'
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+
