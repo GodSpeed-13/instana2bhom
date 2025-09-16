@@ -1,43 +1,39 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/azure/functions-action
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-# More info on Python, GitHub Actions, and Azure Functions: https://aka.ms/python-webapps-actions
-
 name: Build and deploy Python project to Azure Function App - instana2bhom
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
 
-env:
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.' # set this to the path to your web app project, defaults to the repository root
-  PYTHON_VERSION: '3.12' # set this to the python version to use (supports 3.6, 3.7, 3.8)
+# Top-level permissions enable OIDC tokens for all jobs.
+permissions:
+  id-token: write
+  contents: read
 
-# same header: name, on, env...
+env:
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.'
+  PYTHON_VERSION: '3.12'
 
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Login to Azure
+      # (optional) build / zip steps here if you want
+
+      - name: Login to Azure (OIDC)
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_6FA53E899C804754AF852297EBC1548F }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_752857387786414399ECD99B46F4901D }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_138C64700AF742FDB6F65073EE47ECD4 }}
+          # no client-secret needed when using OIDC + id-token permission
 
-      - name: Deploy to Azure Functions (let action build dependencies)
+      - name: Deploy to Azure Functions
         uses: Azure/functions-action@v1
         with:
           app-name: 'instana2bhom'
           package: .
-
-
-
