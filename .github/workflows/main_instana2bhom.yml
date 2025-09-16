@@ -34,7 +34,7 @@ jobs:
           python -m venv venv
           source venv/bin/activate
       - name: List Repo files
-        run: ls-R
+        run: ls -R
       - name: Install dependencies
         run: pip install -r requirements.txt
 
@@ -85,3 +85,4 @@ jobs:
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
 
           
+
