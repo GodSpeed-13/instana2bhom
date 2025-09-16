@@ -1,4 +1,4 @@
-name: Build and deploy Python project to Azure Function App - instana2bhom
+name: Deploy Python Azure Function App - instana2bhom
 
 on:
   push:
@@ -28,13 +28,13 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_FADA99A787AC42B99824FEFFEC86565E }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_522EBAF51E414A0EB9D723D8BAC3930A }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_CEAA01B4DAA54991A7B290E1D9F13398 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID }}
 
       - name: Deploy to Azure Functions
         uses: Azure/functions-action@v1
         with:
           app-name: 'instana2bhom'
-          package: '.'  # project root; must include requirements.txt
+          package: '.'  # project root; contains requirements.txt
           slot-name: 'Production'
