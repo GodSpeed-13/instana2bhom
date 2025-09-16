@@ -42,7 +42,7 @@ jobs:
         run: |
           az functionapp config appsettings set \
             --name instana2bhom \
-            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+            --resource-group instana2bhom \
             --settings SCM_DO_BUILD_DURING_DEPLOYMENT=true
 
       # 5️⃣ Deploy to Azure Functions (source code deployment)
@@ -52,3 +52,4 @@ jobs:
           app-name: 'instana2bhom'  # your Azure Function App name
           package: '.'               # project root; must include requirements.txt
           slot-name: 'Production'    # optional: default is Production
+
