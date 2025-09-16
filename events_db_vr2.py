@@ -174,7 +174,7 @@ async def fetch_instana_events():
 def process_events_in_batches(events, batch_size=8500):
     bhom_config = dict(config["bhom_event_mapping"])
     bhom_url = config["bhom"]["url"]
-    REFRESH_TOKEN_FILE = "cfg/bhom_refresh_token.json"
+    REFRESH_TOKEN_FILE = "/tmp/bhom_refresh_token.json"
     REFRESH_API_URL = config["bhom"]["refresh_api_url"]
 
     refresh_token = common.get_valid_refresh_token(REFRESH_TOKEN_FILE, REFRESH_API_URL)
@@ -240,3 +240,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
