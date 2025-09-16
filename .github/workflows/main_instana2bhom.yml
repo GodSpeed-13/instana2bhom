@@ -23,17 +23,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ Setup Python
+      # 2️⃣ Setup Python (optional for CI checks)
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      # 3️⃣ Install dependencies (optional, just to verify in CI)
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-
-      # 4️⃣ Login to Azure
+      # 3️⃣ Login to Azure
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -41,7 +37,15 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_522EBAF51E414A0EB9D723D8BAC3930A }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_CEAA01B4DAA54991A7B290E1D9F13398 }}
 
-      # 5️⃣ Deploy to Azure Functions
+      # 4️⃣ Ensure Azure builds dependencies from requirements.txt
+      - name: Enable build during deployment
+        run: |
+          az functionapp config appsettings set \
+            --name instana2bhom \
+            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+            --settings SCM_DO_BUILD_DURING_DEPLOYMENT=true
+
+      # 5️⃣ Deploy to Azure Functions (source code deployment)
       - name: Deploy to Azure Functions
         uses: Azure/functions-action@v1
         with:
