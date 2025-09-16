@@ -37,14 +37,6 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_522EBAF51E414A0EB9D723D8BAC3930A }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_CEAA01B4DAA54991A7B290E1D9F13398 }}
 
-      # 4️⃣ Ensure Azure builds dependencies from requirements.txt
-      - name: Enable build during deployment
-        run: |
-          az functionapp config appsettings set \
-            --name instana2bhom \
-            --resource-group instana2bhom \
-            --settings SCM_DO_BUILD_DURING_DEPLOYMENT=true
-
       # 5️⃣ Deploy to Azure Functions (source code deployment)
       - name: Deploy to Azure Functions
         uses: Azure/functions-action@v1
@@ -52,4 +44,5 @@ jobs:
           app-name: 'instana2bhom'  # your Azure Function App name
           package: '.'               # project root; must include requirements.txt
           slot-name: 'Production'    # optional: default is Production
+
 
