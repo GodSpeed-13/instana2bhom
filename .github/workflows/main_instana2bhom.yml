@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.' 
-  PYTHON_VERSION: '3.12'
+  PYTHON_VERSION: '3.11'  # safer
+  PACKAGE_NAME: 'release.zip'
 
 jobs:
   build:
@@ -27,35 +27,17 @@ jobs:
       - name: Install dependencies into .python_packages
         run: |
           python -m pip install --upgrade pip
-          # install into relative .python_packages folder that Azure Functions looks for
           python -m pip install --no-cache-dir -r requirements.txt --target=".python_packages/lib/site-packages"
 
-      - name: Show installed packages (debug)
+      - name: Zip artifact
         run: |
-          echo "Listing .python_packages/lib/site-packages (top 50):"
-          ls -la .python_packages/lib/site-packages | head -n 50
-          echo "Check requests import:"
-          python - <<PY
-          import sys
-          sys.path.insert(0, '.python_packages/lib/site-packages')
-          try:
-              import requests
-              print('requests OK', requests.__version__)
-          except Exception as e:
-              print('requests import failed:', e)
-          PY
+          zip -r ${{ env.PACKAGE_NAME }} . -x "venv/*" ".git/*" "__pycache__/*"
 
-      - name: Zip artifact for deployment
-        run: |
-          # include everything (code + .python_packages) into release.zip
-          zip -r release.zip . -x "venv/*" ".git/*" "__pycache__/*"
-
-      - name: Upload artifact for deployment job
+      - name: Upload artifact for deployment
         uses: actions/upload-artifact@v4
         with:
           name: python-app
-          path: |
-            release.zip
+          path: ${{ env.PACKAGE_NAME }}
 
   deploy:
     runs-on: ubuntu-latest
@@ -65,22 +47,10 @@ jobs:
       contents: read
 
     steps:
-      - name: Download artifact from build job
+      - name: Download artifact
         uses: actions/download-artifact@v4
         with:
           name: python-app
-
-      - name: Unzip artifact for deployment
-        run: |
-          unzip -o release.zip
-          rm release.zip
-
-      # - name: Login to Azure
-      #   uses: azure/login@v2
-      #   with:
-      #     client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_493453c6-a9ae-432a-9b3a-e6a34b863f25 }}
-      #     tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_ebb8b82e-fe09-4b7e-a6c7-fd35f446bf96 }}
-      #     subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_55283db6-cf45-4630-a9f2-82d75fe3b738 }}
 
       - name: Login to Azure
         uses: azure/login@v2
@@ -94,9 +64,4 @@ jobs:
         with:
           app-name: 'instana-bhom'
           slot-name: 'Production'
-          package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
-
-
-
-
-
+          package: ${{ env.PACKAGE_NAME }}
