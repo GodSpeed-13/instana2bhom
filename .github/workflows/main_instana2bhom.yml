@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 env:
-  PYTHON_VERSION: '3.11'  # safer
+  PYTHON_VERSION: '3.12'  # safer
   PACKAGE_NAME: 'release.zip'
 
 jobs:
@@ -65,3 +65,4 @@ jobs:
           app-name: 'instana-bhom'
           slot-name: 'Production'
           package: ${{ env.PACKAGE_NAME }}
+
