@@ -78,15 +78,16 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_6FA53E899C804754AF852297EBC1548F }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_493453c6-a9ae-432a-9b3a-e6a34b863f25 }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_ebb8b82e-fe09-4b7e-a6c7-fd35f446bf96 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_55283db6-cf45-4630-a9f2-82d75fe3b738 }}
 
       - name: Deploy to Azure Functions
         uses: Azure/functions-action@v1
         with:
-          app-name: 'instana2bhom'
+          app-name: 'instana-bhom'
           slot-name: 'Production'
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+
 
 
