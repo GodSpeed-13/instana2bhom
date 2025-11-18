@@ -74,6 +74,11 @@ jobs:
         run: |
           unzip -o release.zip
           rm release.zip
+      - name: Debug secret presence
+        run: |
+          echo "ClientID length: ${#AZURE_CLIENT_ID}"
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.AZUREAPPSERVICE_CLIENTID_493453c6-a9ae-432a-9b3a-e6a34b863f25 }}
 
       - name: Login to Azure
         uses: azure/login@v2
@@ -88,6 +93,7 @@ jobs:
           app-name: 'instana-bhom'
           slot-name: 'Production'
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+
 
 
 
