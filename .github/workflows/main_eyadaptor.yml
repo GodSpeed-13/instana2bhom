@@ -1,46 +1,54 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/azure/functions-action
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-# More info on Python, GitHub Actions, and Azure Functions: https://aka.ms/python-webapps-actions
-
-name: Build and deploy Python project to Azure Function App - eyadaptor
+name: Build and deploy Python project to Azure Function App - instana2bhom
 
 on:
   push:
-    branches:
-      - main
+    branches: main
   workflow_dispatch:
 
 env:
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.' # set this to the path to your web app project, defaults to the repository root
-  PYTHON_VERSION: '3.12' # set this to the python version to use (supports 3.6, 3.7, 3.8)
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.' 
+  PYTHON_VERSION: '3.12'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read #This is required for actions/checkout
+      contents: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Python version
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Create and start virtual environment
+      - name: Install dependencies into .python_packages
         run: |
-          python -m venv venv
-          source venv/bin/activate
+          python -m pip install --upgrade pip
+          # install into relative .python_packages folder that Azure Functions looks for
+          python -m pip install --no-cache-dir -r requirements.txt --target=".python_packages/lib/site-packages"
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-
-      # Optional: Add step to run tests here
+      - name: Show installed packages (debug)
+        run: |
+          echo "Listing .python_packages/lib/site-packages (top 50):"
+          ls -la .python_packages/lib/site-packages | head -n 50
+          echo "Check requests import:"
+          python - <<PY
+          import sys
+          sys.path.insert(0, '.python_packages/lib/site-packages')
+          try:
+              import requests
+              print('requests OK', requests.__version__)
+          except Exception as e:
+              print('requests import failed:', e)
+          PY
 
       - name: Zip artifact for deployment
-        run: zip release.zip ./* -r
+        run: |
+          # include everything (code + .python_packages) into release.zip
+          zip -r release.zip . -x "venv/*" ".git/*" "__pycache__/*"
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -48,7 +56,6 @@ jobs:
           name: python-app
           path: |
             release.zip
-            !venv/
 
   deploy:
     runs-on: ubuntu-latest
@@ -74,4 +81,3 @@ jobs:
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_4CF15F60649C4C1F9215235CC508C1FD }}
           sku: 'flexconsumption'
-        
